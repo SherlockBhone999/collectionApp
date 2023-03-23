@@ -102,6 +102,12 @@ export default function Form (){
     setFormdata(obj)
   }
   
+  const updateCategory = (e) => {
+    const input = e.target.value
+    const obj = {...formdata, category : input}
+    setFormdata(obj)
+  }
+  
   const updateImgFile = (e) => {
     const inputFile = e.target.files[0]
     setChosenImage(inputFile)
@@ -153,6 +159,7 @@ export default function Form (){
   <form class='p-2 bg-gray-200 grid gap-2'>
   <input type='file' onChange={updateImgFile} />
   <input type='text' placeholder = 'name' onChange={updateName} />
+  <input type='text' placeholder='category' onChange={updateCategory} />
   <input type = 'text' placeholder = 'enjoyedYear' onChange={updateEnjoyedYear} />
   <textarea placeholder='reasonToLike' onChange={updateReasonToLike}/>
   <textarea placeholder='myComment' onChange={updateMyComment}/>

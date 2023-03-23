@@ -4,17 +4,17 @@ import {BrowserRouter, Route , Routes , useParams } from 'react-router-dom'
 import axios from 'axios'
 import Homepage from './pages/Homepage'
 import Itempage from './pages/Itempage'
-
+import Formpage from './pages/Formpage'
 
 export const Context = createContext()
 
 const App = () => {
-  const {id,category} = useParams()
+  const {id} = useParams()
   return <BrowserRouter>
    <Routes>
     <Route exact path='/' element={<Homepage />}/>
-    <Route path='/:category' element={<Homepage />}/>
-    <Route path='/:category/:id' element={<Itempage />} />
+    <Route path='/form' element={<Formpage />}/>
+    <Route path='/:id' element={<Itempage />} />
    </Routes>
   </BrowserRouter>
 }
