@@ -19,34 +19,12 @@ const App = () => {
   </BrowserRouter>
 }
 
-const fetchData = async(setList,chosenCategory) => {
-    await axios.get(`http://localhost:3000/`, {responseType : 'arraybuffer'})
-    .then( res => {
-      const array = res.data
-      
-      const base64 = btoa(
-        new Uint8Array(array[0]).reduce(
-          (data,byte) => data + String.fromCharCode(byte), '')
-        )
-      setList([base64])
-      console.log(res)
-    })
-    
-  }
   
 export default function Gallery (){
   const [list, setList ] = useState([])
   const [ chosenCategory, setChosenCategory ] = useState('')
   const baseUrl = "http://localhost:3000"
-  
-  
-  
-  /*
-  useEffect(()=>{
-    fetchData(setList, chosenCategory)
-  },[])
-  */
-  
+
   return <Context.Provider value={{ 
     list,
     setList,

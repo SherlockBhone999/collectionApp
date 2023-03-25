@@ -120,7 +120,7 @@ export default function Form (){
         "content-type":"multipart/form-data"
       }
     }
-    await axios.post('http://localhost:3000/sendimg',{img : chosenImage},config )
+    await axios.post('http://localhost:3000/saveimg',{img : chosenImage},config )
     .then(res =>{
       setNameOfImageSavedInBackend(res.data)
     })
