@@ -4,7 +4,7 @@ import {BrowserRouter, Route , Routes , useParams } from 'react-router-dom'
 import axios from 'axios'
 import Homepage from './pages/Homepage'
 import Itempage from './pages/Itempage'
-import Formpage from './pages/Formpage'
+import Adminpage from './pages/Adminpage'
 
 export const Context = createContext()
 
@@ -13,7 +13,7 @@ const App = () => {
   return <BrowserRouter>
    <Routes>
     <Route exact path='/' element={<Homepage />}/>
-    <Route path='/form' element={<Formpage />}/>
+    <Route path='/admin' element={<Adminpage />}/>
     <Route path='/:id' element={<Itempage />} />
    </Routes>
   </BrowserRouter>

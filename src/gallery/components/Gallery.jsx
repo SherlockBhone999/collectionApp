@@ -1,24 +1,24 @@
 import { useContext, useEffect, useState } from 'react'
 import {Context } from '../Gallery'
 import axios from 'axios'
+import loadingGif from '../../assets/Loading_icon.gif'
 
 
-
-const fetchList = async (setListToFetch,baseUrl) =>{
-  await axios.get(`${baseUrl}/allgdrivelist`)
+const fetchList = async (setListToFetch, baseUrl, chosenCategory) =>{
+  const data = {category : chosenCategory }
+  await axios.post(`${baseUrl}/fetchlistfromdb`,data )
   .then(res => {
+    console.log(res.data)
     setListToFetch(res.data)
   })
-}
+} 
 
 
 
-const fetchItem = async (id, name, setList,baseUrl,list) => {
-  const data = { name : name , id : id }
+const fetchItem = async (item, setList,baseUrl,list) => {
+  const data = { name : item.name , id : item.profileImgLink }
   
-
-  
-  await axios.post(`${baseUrl}/fetchitemfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
   .then( res => {
       const data = res.data
       
@@ -27,37 +27,10 @@ const fetchItem = async (id, name, setList,baseUrl,list) => {
           (dataa,byte) => dataa + String.fromCharCode(byte), '')
         )
       
-      const item = { base64 : base64 , gdriveId : id}
-      setList(prevv => [...prevv, item ])
+      const itemm = {...item, base64 : base64}
+      setList(prevv => [...prevv, itemm ])
       
     })
-
-setTimeout(()=>{
-  
-axios.post(`${baseUrl}/fetchitemfromdb`, { gdriveId : id } )
-  .then((res)=>{
-    const resItem = res.data[0]
-    setList( prevv => {
-      const arr = [...prevv]
-      for(let i=0; i< arr.length; i++){
-        if(arr[i].gdriveId === id ){
-          const newItem = {...arr[i], ...resItem}
-          arr[i] = newItem
-        }
-      }
-      return arr
-    })
-  })
-  
-},100)
-  
-
-
-}
-
-
-const deleteItem = (item,baseUrl) => {
-
 }
 
 
@@ -65,45 +38,51 @@ const deleteItem = (item,baseUrl) => {
 export default function Gallery(){
   const [list, setList] = useState([])
   const [listToFetch, setListToFetch ] = useState([])
-  const {baseUrl, chosenCategory } = useContext(Context)
+  const {baseUrl, chosenCategory, setChosenCategory } = useContext(Context)
   
   useEffect(()=>{
-    
     //temp comment out to test delete
     listToFetch.map(item => {
-      fetchItem(item.id, item.name,setList,baseUrl,list)
+      fetchItem(item,setList,baseUrl,list)
     })
-    
   },[listToFetch])
   
   useEffect(()=>{
-    console.log('list :')
-    list.map((a)=>{
-      console.log(a)
-    })
-  },[list])
+    fetchList(setListToFetch, baseUrl , chosenCategory)
+  },[chosenCategory])
+  
   
   return <div>
+  <p>chosenCategory : {chosenCategory}</p>
 
-  {list.map( item => <div>
-    <img src={`data:;base64,${item.base64} `}  />
-  </div>)}
+  <div class='grid'>
+  <button onClick={()=>{
+    setChosenCategory('manhua')
+    setList([])
+  }}>manhua</button>
   
+  <button onClick={()=>{
+    setChosenCategory('hentai')
+    setList([])
+  }}>hentai</button>
+
   
-  <div class='m-3 p-3 bg-gray-400 rounded border-2 border-black' >
-  items in gdrive :
-  {
-    listToFetch.map(item => <div>
-      {item.name}
-      <button class='p-1 bg-red-400 m-1' onClick={()=>deleteItem(item,baseUrl)}> delete </button >
-      
-    </div>)
+  <button onClick={()=>{
+    setChosenCategory('')
+    setList([])
+  }}>all </button>
+  </div>
+  
+  <div>{listToFetch.length}</div>
+  
+  {listToFetch.map((item,index) => <div>
+    <div class='w-40'>
+      { list[index]? <img src={`data:;base64,${list[index].base64} `}  />
+        : <img src={loadingGif} />
+      }
+    </div>
+  </div>)
   }
-  </div>
-
-  <div>
-  <button onClick={()=>fetchList(setListToFetch,baseUrl)}> fetch all items in gdrive</button>
-  </div>
   
 
   </div>
