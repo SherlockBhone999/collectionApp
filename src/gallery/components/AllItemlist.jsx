@@ -36,12 +36,36 @@ const fetchItemFromDB = async (id, name,setList,baseUrl,list) => {
 const deleteItem = (_id,profileImgLink,baseUrl) => {
   const data = {_id : _id, profileImgLink : profileImgLink}
   axios.post(`${baseUrl}/delete`, data)
-  
 }
+
+const updateItem = (setChosenInterface, setFormInitialData, item, setPreviewImg,baseUrl) => {
+  setChosenInterface('form')
+  setFormInitialData(item)
+  fetchImg(item, setPreviewImg, baseUrl)
+}
+
+
+const fetchImg = async (item, setImg,baseUrl) => {
+  const data = { name : item.name , id : item.profileImgLink }
+  
+  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  .then( res => {
+      const data = res.data
+      
+      const base64 = btoa(
+        new Uint8Array(data).reduce(
+          (dataa,byte) => dataa + String.fromCharCode(byte), '')
+        )
+      
+      setImg(base64)
+      
+    })
+}
+
 
  
 
-export default function AllItemlist(){
+export default function AllItemlist({setChosenInterface, setFormInitialData, setPreviewImg}){
   const [list, setList ] = useState([])
   const [hide, setHide ] = useState('hidden')
   const {baseUrl } = useContext(Context)
@@ -57,7 +81,10 @@ export default function AllItemlist(){
       <p>
       <span>{item.name}</span>  
       <span> {item._id}</span>
-      <button class={`ml-2 bg-blue-400 rounded-lg p-1 text-white ${hide}`}>update </button>
+      
+      <button class={`ml-2 bg-blue-400 rounded-lg p-1 text-white ${hide}`}
+      onClick={()=>updateItem(setChosenInterface,setFormInitialData, item, setPreviewImg, baseUrl) } 
+      >update </button>
       <button class={`ml-2 bg-red-400 rounded-lg p-1 text-white ${hide}`} onClick={()=>deleteItem(item._id, item.profileImgLink,baseUrl)}>delete </button>
       </p>
     </div>)
@@ -74,7 +101,7 @@ export default function AllItemlist(){
       fetchItemFromDB(item.id, item.name, setList, baseUrl, list )
       setHide('')
     })
-  }}> fetch corresponding items from dstabase </button>
+  }}> fetch corresponding items from database </button>
   </div>
   
 

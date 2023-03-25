@@ -61,21 +61,114 @@ const ForImgLinks = ({field, setField}) => {
   </div>
 }
 
+  const sendimg = async (e, chosenImage, setNameOfImageSavedInBackend, baseUrl) => {
+    //e.preventDefault()
+    const config = {
+      headers :{
+        "content-type":"multipart/form-data"
+      }
+    }
+    await axios.post(`${baseUrl}/saveimg`,{img : chosenImage},config )
+    .then(res =>{
+      setNameOfImageSavedInBackend(res.data)
+    })
+  }
+  
+  const uploadimg = async (setButtonN1, formdata, baseUrl) => {
+    await axios.post(`${baseUrl}/upload`, formdata )
+    .then(()=>console.log('submitted :' + formdata ))
+    setButtonN1('1')
+  }
+  
+  
+  const saveImg = async (e,chosenImage,setNameOfImageSavedInBackend,setButtonN1, baseUrl) =>{
+    e.preventDefault()
+    sendimg(e,chosenImage,setNameOfImageSavedInBackend, baseUrl)
+    setButtonN1('2')
+  }
 
 
-export default function Form (){
-  const [formdata, setFormdata ] = useState({})
-  const [youtubeLinksField, setYoutubeLinksField ] = useState([{videoLink : ''}])
-  const [imgLinksField, setImgLinksField ] = useState([ {imglink : ''}])
-  const [chosenImage, setChosenImage ] = useState({})
+
+const saveUpdatedImg = async (e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg , baseUrl ) => {
+  if(chosenImage){
+    setButtonN1('4')
+    e.preventDefault()
+    sendimg(e, chosenImage, setNameOfImageSavedInBackend, baseUrl)
+  }else{
+    e.preventDefault()
+    setButtonN1('4')
+  }
+}
+
+const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage) => {
+  if(chosenImage){
+    e.preventDefault()
+    setButtonN1('5')
+    await axios.post(`${baseUrl}/upload`, formdata)
+    
+  }else{
+    e.preventDefault()
+    setButtonN1('5')
+    await axios.post(`${baseUrl}/update`, formdata)
+    
+  }
+}
+
+const deletePreviousImg = async (formdata, baseUrl, chosenImage, setButtonN1) => {
+  const data =  {profileImgLink : formdata.profileImgLink , _id : formdata._id }
+  axios.post(`${baseUrl}/delete`, data )
+  setButtonN1('3')
+}
+
+
+const Button = ({chosenImage, setNameOfImageSavedInBackend, 
+setButtonN1, formdata, buttonN1, previewImg , baseUrl }) => {
+  if(buttonN1==='1'){
+    return <div>
+      <button onClick={(e)=>saveImg(e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, baseUrl)} >submit 1 </button>
+    </div>
+  }else if(buttonN1==='2'){
+    return <div>
+      <button onClick={()=>uploadimg(setButtonN1,formdata, baseUrl)}>submit 2 </button>
+    </div>
+  }else if(buttonN1==='3'){
+    return <div>
+      <button onClick={(e)=>saveUpdatedImg(e,chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg, baseUrl)}> update 1</button>
+    </div>
+  }else if(buttonN1==='4'){
+    return <div>
+      <button onClick={(e)=>uploadUpdatedImg(e,setButtonN1, formdata, baseUrl, chosenImage)}>update2</button>
+    </div>
+  }else if(buttonN1==='5'){
+    return <div>
+      <button onClick={()=>deletePreviousImg(formdata, baseUrl, chosenImage, setButtonN1)}> update 3</button>
+    </div>
+  }
+}
+
+
+
+
+export default function Form ({initialData, previewImg }){
+  const [formdata, setFormdata ] = useState(initialData)
+  const [youtubeLinksField, setYoutubeLinksField ] = useState(formdata.youtubeLinks)
+  const [imgLinksField, setImgLinksField ] = useState(formdata.imgLinks)
+  const [chosenImage, setChosenImage ] = useState('')
   const [nameOfImageSavedInBackend, setNameOfImageSavedInBackend] = useState('')
-  const [buttonN1, setButtonN1 ] = useState(true)
+  const [buttonN1, setButtonN1 ] = useState('1')
+  const {baseUrl} = useContext(Context)
   
   
   const updateName = (e) => {
-    const input = e.target.value
-    const obj = {...formdata, name : input}
-    setFormdata(obj)
+    if(!chosenImage){
+      //when update don`t let name change unless img change
+      return
+    }else{
+      const input = e.target.value
+      const obj = {...formdata, name : input}
+      setFormdata(obj)
+    }
+    
   }
   
   const updateEnjoyedYear = (e) => {
@@ -112,67 +205,56 @@ export default function Form (){
     const inputFile = e.target.files[0]
     setChosenImage(inputFile)
   }
-  
-  const sendimg = async (e) => {
-    //e.preventDefault()
-    const config = {
-      headers :{
-        "content-type":"multipart/form-data"
-      }
-    }
-    await axios.post('http://localhost:3000/saveimg',{img : chosenImage},config )
-    .then(res =>{
-      setNameOfImageSavedInBackend(res.data)
-    })
-  }
-  
-  const uploadimg =async () => {
-    await axios.post('http://localhost:3000/upload', formdata )
-    .then(()=>console.log('submitted :' + formdata ))
-    setButtonN1(true)
-  }
-  
-  
-  const handleSubmit = async (e) =>{
-    e.preventDefault()
-    sendimg()
-    setButtonN1(false)
-  }
-  
+
   useEffect(()=>{
     const data = {...formdata, youtubeLinks : youtubeLinksField, imgLinks : imgLinksField }
     setFormdata(data)
   },[youtubeLinksField,imgLinksField])
   
-  useEffect(()=>{
-    console.log(formdata)
-  },[formdata])
+  
   
   useEffect(()=>{
     const data = {...formdata, imgNameInBackend : nameOfImageSavedInBackend }
     setFormdata(data)
   },[nameOfImageSavedInBackend])
   
+  useEffect(()=>{
+    setButtonN1('3')
+  },[previewImg])
+  
   return <div>
   <div class='flex w-full'>
   
   <form class='p-2 bg-gray-200 grid gap-2'>
   <input type='file' onChange={updateImgFile} />
-  <input type='text' placeholder = 'name' onChange={updateName} />
-  <input type='text' placeholder='category' onChange={updateCategory} />
-  <input type = 'text' placeholder = 'enjoyedYear' onChange={updateEnjoyedYear} />
-  <textarea placeholder='reasonToLike' onChange={updateReasonToLike}/>
-  <textarea placeholder='myComment' onChange={updateMyComment}/>
-  <input type='number' placeholder='myRating' onChange={updateMyRating} />
+  <input type='text' placeholder = 'name' onChange={updateName} value={formdata.name.split('.jpg').join('')} />
+  <input type='text' placeholder='category' onChange={updateCategory} value={formdata.category}/>
+  <input type = 'text' placeholder = 'enjoyedYear' onChange={updateEnjoyedYear} value={formdata.enjoyedYear}/>
+  <textarea placeholder='reasonToLike' onChange={updateReasonToLike} value={formdata.reasonToLike}/>
+  <textarea placeholder='myComment' onChange={updateMyComment} value={formdata.myComment} />
+  <input type='number' placeholder='myRating' onChange={updateMyRating} value={formdata.myRating} />
   <ForYoutubeLinks field={youtubeLinksField} setField={setYoutubeLinksField} />
   <ForImgLinks field={imgLinksField} setField={setImgLinksField} />
-  { buttonN1? 
-  <button type='submit' onClick={handleSubmit} > submit 1</button>
-  :
-  <button onClick={uploadimg} > submit 2 </button>
-  }
-  </form>
 
+  <Button chosenImage={chosenImage} 
+  setNameOfImageSavedInBackend={setNameOfImageSavedInBackend} 
+  setButtonN1={setButtonN1} 
+  formdata={formdata} 
+  buttonN1={buttonN1} 
+  previewImg={previewImg}
+  baseUrl={baseUrl}
+  />
+  
+  </form>
+  
+  <div class='w-40'>
+    <img src={`data:;base64,${previewImg}`} />
+  </div>
+  
+  {
+    chosenImage? <div> not empty </div> : <div> empty </div>
+  }
+  
   </div>
 
   </div>
