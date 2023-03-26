@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import {Context } from '../Gallery'
 import axios from 'axios'
-
+import {AdminpageContext} from '../pages/Adminpage'
 
 
 const fetchListFromGdrive = async (setList,baseUrl) =>{
@@ -13,13 +13,12 @@ const fetchListFromGdrive = async (setList,baseUrl) =>{
 
 
 
-const fetchItemFromDB = async (id, name,setList,baseUrl,list) => {
+const fetchItemFromDB = async (id, name,setItemList,baseUrl) => {
   
   axios.post(`${baseUrl}/fetchitemfromdb`, { gdriveId : id } )
   .then((res)=>{
     const resItem = res.data
-    console.log(resItem)
-    setList( prevv => {
+    setItemList( prevv => {
       const arr = [...prevv]
       for(let i=0; i< arr.length; i++){
         if(arr[i].id === id ){
@@ -28,9 +27,10 @@ const fetchItemFromDB = async (id, name,setList,baseUrl,list) => {
         }
       }
       return arr
+    })
   })
-})
 } 
+
 
 
 const deleteItem = (_id,profileImgLink,baseUrl) => {
@@ -38,9 +38,10 @@ const deleteItem = (_id,profileImgLink,baseUrl) => {
   axios.post(`${baseUrl}/delete`, data)
 }
 
-const updateItem = (setChosenInterface, setFormInitialData, item, setPreviewImg,baseUrl) => {
-  setChosenInterface('form')
+const updateItem = (setChosenComponent, setFormInitialData, item, setPreviewImg,baseUrl,setIsUpdateMode) => {
+  setChosenComponent('form')
   setFormInitialData(item)
+  setIsUpdateMode(true)
   fetchImg(item, setPreviewImg, baseUrl)
 }
 
@@ -62,49 +63,125 @@ const fetchImg = async (item, setImg,baseUrl) => {
     })
 }
 
-
- 
-
-export default function AllItemlist({setChosenInterface, setFormInitialData, setPreviewImg}){
-  const [list, setList ] = useState([])
-  const [hide, setHide ] = useState('hidden')
-  const {baseUrl } = useContext(Context)
+const createCategoryTest = async () => {
+  const data = {category : 'anime' }
+  await axios.post('http://localhost:3000/createcategory', data)
+  .then((res)=>{
   
+  })
+}
+
+const fetchCategoryList = async (baseUrl, setCategoryList) => {
+  await axios.get(`${baseUrl}/getcategorylist`)
+  .then((res)=>{
+    setCategoryList(res.data)
+  })
+}
+
+
+
+const sortItemList = (itemList, categoryList, setSortedList) => {
+  const array = []
+  
+  categoryList.map((item)=>{
+    const subarray = []
+    itemList.map((itemm)=>{
+      if(itemm.category === item.category){
+        subarray.push(itemm)
+      }
+    })
+    array.push(subarray)
+  })
+  setSortedList(array)
+}
+ 
+ 
+const OneItem = ({item}) => {
+  const [buttonStyle, setButtonStyle] = useState('hidden')
+  const {baseUrl, categoryList } = useContext(Context)
+  const {setChosenComponent, setFormInitialData, setPreviewImg, setIsUpdateMode, itemList, setItemList, showUpdateButton, setShowUpdateButton } = useContext(AdminpageContext)
+  
+  useEffect(()=>{
+    if(item._id){ setButtonStyle('') }
+  },[item])
   
   return <div>
-  
-  
-  <div class='m-2 p-2 bg-gray-200 rounded border-2 border-black' >
-  <p>  {list.length }</p>
-  {
-    list.map(item => <div>
       <p>
       <span>{item.name}</span>  
       <span> {item._id}</span>
       
-      <button class={`ml-2 bg-blue-400 rounded-lg p-1 text-white ${hide}`}
-      onClick={()=>updateItem(setChosenInterface,setFormInitialData, item, setPreviewImg, baseUrl) } 
-      >update </button>
-      <button class={`ml-2 bg-red-400 rounded-lg p-1 text-white ${hide}`} onClick={()=>deleteItem(item._id, item.profileImgLink,baseUrl)}>delete </button>
+      <button class={`ml-2 bg-blue-400 rounded-lg p-1 text-white ${buttonStyle}`}
+      onClick={()=>updateItem(setChosenComponent,setFormInitialData, item, setPreviewImg, baseUrl, setIsUpdateMode) } 
+      >u </button>
+      <button class={`ml-2 bg-red-400 rounded-lg p-1 text-white ${buttonStyle}`} onClick={()=>deleteItem(item._id, item.profileImgLink,baseUrl)}>d </button>
       </p>
+  </div>
+}
+
+
+export default function AllItemlist(){
+  
+  const {baseUrl, categoryList , setCategoryList } = useContext(Context)
+  const {itemList, setItemList } = useContext(AdminpageContext)
+  const [sortedList, setSortedList ] = useState([])
+  
+  return <div>
+  
+  {
+    categoryList.map(itemm => <div>
+      {itemm.category}
+    </div>)
+  }
+  
+  <div >
+  {
+    itemList.map(item => <div>
+      <OneItem item={item} />
     </div>)
   }
   </div>
-
+  
+  <hr/>
+  
+  <button onClick={()=>{
+    if(categoryList.length === 0){
+      fetchCategoryList(baseUrl, setCategoryList)
+    }
+  }}> get category list </button>
+  
   <div>
-  <button onClick={()=>fetchListFromGdrive(setList,baseUrl)}> fetch all items from gdrive</button>
+  <button onClick={()=>fetchListFromGdrive(setItemList,baseUrl)}> fetch all items from gdrive</button>
   </div>
   
   <div>
   <button onClick={()=>{
-    list.map((item)=>{
-      fetchItemFromDB(item.id, item.name, setList, baseUrl, list )
-      setHide('')
+    itemList.map((item)=>{
+      fetchItemFromDB(item.id, item.name, setItemList, baseUrl)
     })
   }}> fetch corresponding items from database </button>
   </div>
   
-
+  
+  <b/>
+  <button onClick={()=>{
+    sortItemList(itemList, categoryList, setSortedList)
+  }}> sort itemlist </button>
+  
+  <div class='bg-gray-200 p-2 m-1'>
+  {
+    sortedList.map(arr => <div>
+     <p>{ arr[0].category} {arr.length}</p>
+     <div class='bg-blue-200 p-1 grid'>
+       {
+         arr.map(item=> <div>
+          {item.name}
+         </div>)
+       }
+     </div>
+    </div>)
+  }
+  </div>
+  
   </div>
 }
 

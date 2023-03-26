@@ -34,20 +34,29 @@ const fetchItem = async (item, setList,baseUrl,list) => {
 }
 
 
+const fetchCategoryList = async (baseUrl, setCategoryList) => {
+  await axios.get(`${baseUrl}/getcategorylist`)
+  .then((res)=>{
+    setCategoryList(res.data)
+  })
+}
+
 
 export default function Gallery(){
-  const [list, setList] = useState([])
   const [listToFetch, setListToFetch ] = useState([])
-  const {baseUrl, chosenCategory, setChosenCategory } = useContext(Context)
+  const {baseUrl, chosenCategory, setChosenCategory , list, setList, categoryList, setCategoryList } = useContext(Context)
+  
+  
   
   useEffect(()=>{
-    //temp comment out to test delete
     listToFetch.map(item => {
       fetchItem(item,setList,baseUrl,list)
     })
   },[listToFetch])
   
+  
   useEffect(()=>{
+    setList([])
     fetchList(setListToFetch, baseUrl , chosenCategory)
   },[chosenCategory])
   
@@ -55,24 +64,14 @@ export default function Gallery(){
   return <div>
   <p>chosenCategory : {chosenCategory}</p>
 
-  <div class='grid'>
-  <button onClick={()=>{
-    setChosenCategory('manhua')
-    setList([])
-  }}>manhua</button>
+  <button onClick={()=>fetchCategoryList(baseUrl, setCategoryList)} > get categorylist </button>
   
-  <button onClick={()=>{
-    setChosenCategory('hentai')
-    setList([])
-  }}>hentai</button>
+  {
+    categoryList.map(item => <div>
+      <button onClick={()=>setChosenCategory(item.category)}>{item.category}</button>
+    </div>)
+  }
 
-  
-  <button onClick={()=>{
-    setChosenCategory('')
-    setList([])
-  }}>all </button>
-  </div>
-  
   <div>{listToFetch.length}</div>
   
   {listToFetch.map((item,index) => <div>

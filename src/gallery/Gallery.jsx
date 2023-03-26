@@ -24,6 +24,8 @@ export default function Gallery (){
   const [list, setList ] = useState([])
   const [ chosenCategory, setChosenCategory ] = useState('')
   const baseUrl = "http://localhost:3000"
+  const [ isAdmin, setIsAdmin ] = useState('')
+  const [categoryList, setCategoryList ] = useState([])
 
   return <Context.Provider value={{ 
     list,
@@ -31,6 +33,10 @@ export default function Gallery (){
     chosenCategory,
     setChosenCategory,
     baseUrl,
+    isAdmin,
+    setIsAdmin,
+    categoryList,
+    setCategoryList
     
   }}>
     <App />

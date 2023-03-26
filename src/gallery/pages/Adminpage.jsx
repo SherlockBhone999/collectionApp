@@ -1,14 +1,17 @@
 
-import {useState} from 'react'
+import {useState, createContext, useContext, useEffect } from 'react'
 import Form from '../components/Form'
 import AllItemlist from '../components/AllItemlist'
+import { useNavigate } from 'react-router-dom'
+import {Context} from '../Gallery'
 
 
-const Chosen = ({chosen, setChosen, formInitialData, setFormInitialData, previewImg, setPreviewImg}) => {
-  if(chosen === 'form'){
-    return <Form initialData={formInitialData} previewImg={previewImg}/>
-  }else if(chosen === 'allitem'){
-    return <AllItemlist setChosenInterface={setChosen} setFormInitialData={setFormInitialData} setPreviewImg={setPreviewImg}/>
+const Chosen = () => {
+  const {chosenComponent} = useContext(AdminpageContext)
+  if(chosenComponent === 'form'){
+    return <Form />
+  }else if(chosenComponent === 'allitem'){
+    return <AllItemlist />
   }
 }
 
@@ -23,21 +26,58 @@ const initialData = {
   imgLinks : [{imgLink : ''}],
 }
 
-export default function Adminpage(){
-  const [chosen, setChosen ] = useState('')
-  const [formInitialData, setFormInitialData] = useState(initialData)
-  const [previewImg, setPreviewImg ] = useState('')
+
+const Content = () => {
+  const navigate = useNavigate()
+  const {setChosenComponent} = useContext(AdminpageContext)
   
   return <div>
+  <button onClick={()=>navigate('/')}> homepage </button>
+  
   <div>
-    <button onClick={()=>setChosen('form')} class='m-3'>form </button>
-    <button onClick={()=>setChosen('allitem')} class='m-3'>all itemlist </button>
+    <button onClick={()=>setChosenComponent('form')} class='m-3'>form </button>
+    <button onClick={()=>setChosenComponent('allitem')} class='m-3'>all itemlist </button>
   </div>
-  <Chosen chosen={chosen} 
-  setChosen={setChosen} 
-  formInitialData={formInitialData} 
-  setFormInitialData={setFormInitialData} 
-  previewImg={previewImg} 
-  setPreviewImg={setPreviewImg} />
+  
+  <Chosen />
   </div>
 }
+
+
+
+export const AdminpageContext = createContext()
+
+export default function Adminpage(){
+  const [chosenComponent, setChosenComponent] = useState('')
+  const [formInitialData, setFormInitialData] = useState(initialData)
+  const [previewImg, setPreviewImg] = useState('')
+  const [isUpdateMode, setIsUpdateMode] = useState(false)
+  const [itemList, setItemList ] = useState([])
+  const [showUpdateButton, setShowUpdateButton ] = useState('hidden')
+  const {isAdmin} = useContext(Context)
+  const navigate = useNavigate()
+  
+  useEffect(()=>{
+    if(isAdmin !== 'yes'){
+      navigate('/')
+    }
+  },[])
+  
+  return <AdminpageContext.Provider value={{
+    chosenComponent,
+    setChosenComponent,
+    formInitialData,
+    setFormInitialData,
+    previewImg,
+    setPreviewImg,
+    isUpdateMode,
+    setIsUpdateMode,
+    itemList,
+    setItemList,
+    showUpdateButton,
+    setShowUpdateButton
+  }}>
+  <Content />
+  </AdminpageContext.Provider>
+}
+

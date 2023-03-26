@@ -2,6 +2,7 @@
 import {useState, useEffect, useContext } from 'react'
 import axios from 'axios'
 import {Context} from '../Gallery'
+import {AdminpageContext} from '../pages/Adminpage'
 
 const ForYoutubeLinks = ({field, setField}) => {
   
@@ -114,15 +115,16 @@ const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage) =>
   }
 }
 
-const deletePreviousImg = async (formdata, baseUrl, chosenImage, setButtonN1) => {
+const deletePreviousImg = async (formdata, baseUrl, chosenImage, setButtonN1, setIsUpdateMode) => {
   const data =  {profileImgLink : formdata.profileImgLink , _id : formdata._id }
   axios.post(`${baseUrl}/delete`, data )
   setButtonN1('3')
+  setUpdate(false)
 }
 
 
 const Button = ({chosenImage, setNameOfImageSavedInBackend, 
-setButtonN1, formdata, buttonN1, previewImg , baseUrl }) => {
+setButtonN1, formdata, buttonN1, previewImg , baseUrl , setIsUpdateMode}) => {
   if(buttonN1==='1'){
     return <div>
       <button onClick={(e)=>saveImg(e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, baseUrl)} >submit 1 </button>
@@ -141,7 +143,7 @@ setButtonN1, formdata, buttonN1, previewImg , baseUrl }) => {
     </div>
   }else if(buttonN1==='5'){
     return <div>
-      <button onClick={()=>deletePreviousImg(formdata, baseUrl, chosenImage, setButtonN1)}> update 3</button>
+      <button onClick={()=>deletePreviousImg(formdata, baseUrl, chosenImage, setButtonN1, setIsUpdateMode)}> update 3</button>
     </div>
   }
 }
@@ -149,14 +151,16 @@ setButtonN1, formdata, buttonN1, previewImg , baseUrl }) => {
 
 
 
-export default function Form ({initialData, previewImg }){
-  const [formdata, setFormdata ] = useState(initialData)
+export default function Form (){
+  const { formInitialData, previewImg, isUpdateMode, setIsUpdateMode } = useContext(AdminpageContext)
+  const [formdata, setFormdata ] = useState(formInitialData)
   const [youtubeLinksField, setYoutubeLinksField ] = useState(formdata.youtubeLinks)
   const [imgLinksField, setImgLinksField ] = useState(formdata.imgLinks)
   const [chosenImage, setChosenImage ] = useState('')
   const [nameOfImageSavedInBackend, setNameOfImageSavedInBackend] = useState('')
   const [buttonN1, setButtonN1 ] = useState('1')
   const {baseUrl} = useContext(Context)
+  
   
   
   const updateName = (e) => {
@@ -219,12 +223,13 @@ export default function Form ({initialData, previewImg }){
   },[nameOfImageSavedInBackend])
   
   useEffect(()=>{
-    setButtonN1('3')
+    if(formdata.name !== ''){
+      setButtonN1('3')
+    }
   },[previewImg])
   
   return <div>
   <div class='flex w-full'>
-  
   <form class='p-2 bg-gray-200 grid gap-2'>
   <input type='file' onChange={updateImgFile} />
   <input type='text' placeholder = 'name' onChange={updateName} value={formdata.name.split('.jpg').join('')} />
@@ -243,17 +248,18 @@ export default function Form ({initialData, previewImg }){
   buttonN1={buttonN1} 
   previewImg={previewImg}
   baseUrl={baseUrl}
+  setIsUpdateMode={setIsUpdateMode}
   />
   
   </form>
   
+  {isUpdateMode?
   <div class='w-40'>
     <img src={`data:;base64,${previewImg}`} />
   </div>
-  
-  {
-    chosenImage? <div> not empty </div> : <div> empty </div>
+  : null
   }
+  
   
   </div>
 
