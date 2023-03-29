@@ -26,7 +26,7 @@ const ForYoutubeLinks = ({field, setField}) => {
   
   return <div class='grid'>
   { field.map((obj,index) => <div >
-    <input type='text' placeholder='videoLink' onChange={(e)=>update(e,index)}/>
+    <input type='text' placeholder='videoLink' onChange={(e)=>update(e,index)} value={field[index].videoLink}/>
     <button type='button' onClick={()=>remove(index)}> - </button >
   </div> ) }
   <button type='button' onClick={add}> + </button>
@@ -55,7 +55,7 @@ const ForImgLinks = ({field, setField}) => {
   
   return <div class='grid'>
   { field.map((obj,index) => <div >
-    <input type='text' placeholder='imgLink' onChange={(e)=>update(e,index)}/>
+    <input type='text' placeholder='imgLink' onChange={(e)=>update(e,index)} value={field[index].imgLink}/>
     <button type='button' onClick={()=>remove(index)}> - </button >
   </div> ) }
   <button type='button' onClick={add}> + </button>
@@ -108,10 +108,10 @@ const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage) =>
     await axios.post(`${baseUrl}/upload`, formdata)
     
   }else{
-    e.preventDefault()
+    //e.preventDefault()
     setButtonN1('5')
     await axios.post(`${baseUrl}/update`, formdata)
-    
+    console.log(formdata)
   }
 }
 

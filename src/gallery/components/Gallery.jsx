@@ -1,17 +1,16 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState , useRef } from 'react'
 import {Context } from '../Gallery'
 import axios from 'axios'
 import loadingGif from '../../assets/Loading_icon.gif'
-
+import { useNavigate } from 'react-router-dom'
 
 const fetchList = async (setListToFetch, baseUrl, chosenCategory) =>{
   const data = {category : chosenCategory }
   await axios.post(`${baseUrl}/fetchlistfromdb`,data )
   .then(res => {
-    console.log(res.data)
     setListToFetch(res.data)
   })
-} 
+}
 
 
 
@@ -19,7 +18,7 @@ const fetchItem = async (item, setList,baseUrl,list) => {
   const data = { name : item.name , id : item.profileImgLink }
   
   await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
-  .then( res => {
+  .then( (res) => {
       const data = res.data
       
       const base64 = btoa(
@@ -31,6 +30,55 @@ const fetchItem = async (item, setList,baseUrl,list) => {
       setList(prevv => [...prevv, itemm ])
       
     })
+  .catch((err)=>{
+    console.log(err.response.status, item._id)
+    fetchItem2(item, setList, baseUrl, list)
+  })
+}
+
+//if fetchitem fail, this will save it, i am so genius
+const fetchItem2 = async (item, setList,baseUrl,list) => {
+  const data = { name : item.name , id : item.profileImgLink }
+  
+  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  .then( (res) => {
+      const data = res.data
+      
+      const base64 = btoa(
+        new Uint8Array(data).reduce(
+          (dataa,byte) => dataa + String.fromCharCode(byte), '')
+        )
+      
+      const itemm = {...item, base64 : base64}
+      setList(prevv => [...prevv, itemm ])
+      
+    })
+  .catch((err)=>{
+    console.log(err.response.status, item._id + 'fetch 2')
+    fetchItem3(item, setList, baseUrl, list)
+  })
+}
+
+const fetchItem3 = async (item, setList,baseUrl,list) => {
+  const data = { name : item.name , id : item.profileImgLink }
+  
+  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  .then( (res) => {
+      const data = res.data
+      
+      const base64 = btoa(
+        new Uint8Array(data).reduce(
+          (dataa,byte) => dataa + String.fromCharCode(byte), '')
+        )
+      
+      const itemm = {...item, base64 : base64}
+      setList(prevv => [...prevv, itemm ])
+      
+    })
+  .catch((err)=>{
+    console.log(err.response.status, item._id + 'fetch 3')
+  })
+    
 }
 
 
@@ -42,11 +90,30 @@ const fetchCategoryList = async (baseUrl, setCategoryList) => {
 }
 
 
+const OneItem = ({index, item}) => {
+  const navigate = useNavigate()
+  const {baseUrl, list, setList, setItemForItempage} = useContext(Context)
+  if(list[index]){
+    return <div class='w-10/12 h-[140px]'>
+      <img src={`data:;base64,${list[index].base64} `} class='w-full h-full object-cover'
+      onClick={()=>{
+        setItemForItempage(list[index])
+        navigate(`/${list[index]._id}`)
+      }}/>
+      <div>{list[index].name}</div>
+    </div>
+  }else{
+    return <div>
+      <img src={loadingGif} />
+      <div>{item.name}</div>
+    </div>
+  }
+}
+
 export default function Gallery(){
   const [listToFetch, setListToFetch ] = useState([])
   const {baseUrl, chosenCategory, setChosenCategory , list, setList, categoryList, setCategoryList } = useContext(Context)
-  
-  
+  const [categoryBoxStyle, setCategoryBoxStyle ] = useState('')
   
   useEffect(()=>{
     listToFetch.map(item => {
@@ -55,34 +122,55 @@ export default function Gallery(){
   },[listToFetch])
   
   
+  
   useEffect(()=>{
     setList([])
     fetchList(setListToFetch, baseUrl , chosenCategory)
   },[chosenCategory])
   
+  useEffect(()=>{
+    fetchCategoryList(baseUrl, setCategoryList)
+  },[])
   
-  return <div>
-  <p>chosenCategory : {chosenCategory}</p>
+  useEffect(()=>{
+    if(list.length >= listToFetch.length || listToFetch.length===0){
+      setCategoryBoxStyle('')
+    }else{
+      setCategoryBoxStyle('opacity-40')
+    }
+  },[list, listToFetch])
+  
+  
+  return <div class=''>
 
-  <button onClick={()=>fetchCategoryList(baseUrl, setCategoryList)} > get categorylist </button>
-  
+  <div class={`bg-blue-200 p-2 m-1 ${categoryBoxStyle}`}>
+  <button onClick={()=>setChosenCategory('')}> all </button>
   {
     categoryList.map(item => <div>
-      <button onClick={()=>setChosenCategory(item.category)}>{item.category}</button>
+      <button onClick={()=>{
+        if(categoryBoxStyle === ''){
+          setChosenCategory(item.category)
+        }else{
+          
+        }
+      } }>{item.category}</button>
     </div>)
   }
-
+  </div>
+  <p>chosenCategory : {chosenCategory}</p>
+  
   <div>{listToFetch.length}</div>
   
-  {listToFetch.map((item,index) => <div>
-    <div class='w-40'>
-      { list[index]? <img src={`data:;base64,${list[index].base64} `}  />
-        : <img src={loadingGif} />
-      }
+
+    <div class='grid grid-cols-4 gap-5 ml-4'>
+    {listToFetch.map((item,index) => <div >
+      <OneItem index={index} item={item} />
+    </div>)
+    }
     </div>
-  </div>)
-  }
+
   
+  <button onClick={()=>console.log(list)}>show list </button>
 
   </div>
 }

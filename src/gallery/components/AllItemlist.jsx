@@ -15,7 +15,7 @@ const fetchListFromGdrive = async (setList,baseUrl) =>{
 
 const fetchItemFromDB = async (id, name,setItemList,baseUrl) => {
   
-  axios.post(`${baseUrl}/fetchitemfromdb`, { gdriveId : id } )
+  axios.post(`${baseUrl}/fetchitemfromdbwithgdriveid`, { gdriveId : id } )
   .then((res)=>{
     const resItem = res.data
     setItemList( prevv => {
@@ -63,13 +63,6 @@ const fetchImg = async (item, setImg,baseUrl) => {
     })
 }
 
-const createCategoryTest = async () => {
-  const data = {category : 'anime' }
-  await axios.post('http://localhost:3000/createcategory', data)
-  .then((res)=>{
-  
-  })
-}
 
 const fetchCategoryList = async (baseUrl, setCategoryList) => {
   await axios.get(`${baseUrl}/getcategorylist`)
@@ -80,107 +73,145 @@ const fetchCategoryList = async (baseUrl, setCategoryList) => {
 
 
 
-const sortItemList = (itemList, categoryList, setSortedList) => {
-  const array = []
-  
-  categoryList.map((item)=>{
-    const subarray = []
-    itemList.map((itemm)=>{
-      if(itemm.category === item.category){
-        subarray.push(itemm)
-      }
-    })
-    array.push(subarray)
-  })
-  setSortedList(array)
-}
+
  
  
 const OneItem = ({item}) => {
-  const [buttonStyle, setButtonStyle] = useState('hidden')
+  const [style, setStyle] = useState('bg-blue-200')
   const {baseUrl, categoryList } = useContext(Context)
   const {setChosenComponent, setFormInitialData, setPreviewImg, setIsUpdateMode, itemList, setItemList, showUpdateButton, setShowUpdateButton } = useContext(AdminpageContext)
+  const [buttonStyle, setButtonStyle ] = useState('hidden')
   
   useEffect(()=>{
-    if(item._id){ setButtonStyle('') }
+    if(item._id){ setStyle('bg-green-400') }
   },[item])
   
-  return <div>
-      <p>
-      <span>{item.name}</span>  
-      <span> {item._id}</span>
+  return <div class=''>
+      <div class={`${style} p-2 m-1 overflow-hidden rounded`}>
+      <button onClick={()=>{
+        if(buttonStyle === 'hidden'){ 
+          setButtonStyle('')
+          setTimeout(()=>{
+            setButtonStyle('hidden')
+          },2000)
+        }
+      }}> {item.name} </button>
       
-      <button class={`ml-2 bg-blue-400 rounded-lg p-1 text-white ${buttonStyle}`}
+      <button class={`m-1 bg-blue-400 rounded-lg p-1 text-white ${buttonStyle}`}
       onClick={()=>updateItem(setChosenComponent,setFormInitialData, item, setPreviewImg, baseUrl, setIsUpdateMode) } 
       >u </button>
-      <button class={`ml-2 bg-red-400 rounded-lg p-1 text-white ${buttonStyle}`} onClick={()=>deleteItem(item._id, item.profileImgLink,baseUrl)}>d </button>
-      </p>
+      <button class={`m-1 bg-red-400 rounded-lg p-1 text-white ${buttonStyle}`} onClick={()=>deleteItem(item._id, item.profileImgLink,baseUrl)}>d </button>
+      
+      </div>
   </div>
 }
+
+const OneCategory = ({item, setSelectedCategory, itemList, categoryList}) => {
+  const handleClick = () =>{
+    if(itemList[0]._id !== ''){
+      setSelectedCategory(item.category)
+    }
+  }
+  
+  return <div class='m-1 p-2 bg-blue-200 rounded'>
+    <button onClick={handleClick}>{item.category}</button>
+  </div>
+}
+
+
+
+const FilteredList = ({selectedCategory, itemList}) => {
+  const [filteredArray, setFilteredArray ] = useState([])
+  
+  useEffect(()=>{
+    const array = [...itemList]
+    const newArray = array.filter(item => item.category === selectedCategory)
+    setFilteredArray(newArray)
+  },[selectedCategory])
+  
+  
+  return <div>
+  {selectedCategory?
+  <div> found {filteredArray.length} items in {selectedCategory} </div>
+  : null
+  }
+  {
+    filteredArray.map(item => <div>
+      <OneItem item={item} />
+    </div>)
+  }
+  </div>
+}
+
+
+const Table = ({categoryList, itemList, setSelectedCategory, selectedCategory}) => {
+  
+  return <div>
+      <div class=''>
+        <p>found {categoryList.length} categories : </p>
+        <div class='flex'>
+          <button onClick={()=>setSelectedCategory('')} class='m-1 p-2 bg-blue-200 rounded'>all</button>
+          {categoryList.map(item => <div>
+            <OneCategory item={item} 
+            setSelectedCategory={setSelectedCategory}
+            itemList={itemList}
+            categoryList={categoryList}/>
+          </div>)}
+        </div>
+      </div>
+  
+      {  itemList.length !== 0 && selectedCategory==='' ?
+      <div>
+        <p>found {itemList.length} items :</p>
+        <div class='grid grid-cols-5 '>
+          {itemList.map(item => <div>
+            <OneItem item={item} />
+          </div>)}
+        </div>
+      </div>
+      : null
+      }
+  
+      <FilteredList selectedCategory={selectedCategory}
+      itemList={itemList}
+      />
+  
+
+      
+  </div>
+  
+}
+
 
 
 export default function AllItemlist(){
   
   const {baseUrl, categoryList , setCategoryList } = useContext(Context)
   const {itemList, setItemList } = useContext(AdminpageContext)
-  const [sortedList, setSortedList ] = useState([])
+  const [selectedCategory, setSelectedCategory] = useState('')
   
   return <div>
-  
-  {
-    categoryList.map(itemm => <div>
-      {itemm.category}
-    </div>)
-  }
-  
-  <div >
-  {
-    itemList.map(item => <div>
-      <OneItem item={item} />
-    </div>)
-  }
-  </div>
-  
+
+  <Table itemList={itemList} 
+  categoryList={categoryList} 
+  selectedCategory={selectedCategory}
+  setSelectedCategory={setSelectedCategory}/>
   <hr/>
   
   <button onClick={()=>{
     if(categoryList.length === 0){
       fetchCategoryList(baseUrl, setCategoryList)
     }
-  }}> get category list </button>
+    fetchListFromGdrive(setItemList,baseUrl)
+  }}> step 1</button>
   
-  <div>
-  <button onClick={()=>fetchListFromGdrive(setItemList,baseUrl)}> fetch all items from gdrive</button>
-  </div>
   
-  <div>
   <button onClick={()=>{
     itemList.map((item)=>{
       fetchItemFromDB(item.id, item.name, setItemList, baseUrl)
     })
-  }}> fetch corresponding items from database </button>
-  </div>
-  
-  
-  <b/>
-  <button onClick={()=>{
-    sortItemList(itemList, categoryList, setSortedList)
-  }}> sort itemlist </button>
-  
-  <div class='bg-gray-200 p-2 m-1'>
-  {
-    sortedList.map(arr => <div>
-     <p>{ arr[0].category} {arr.length}</p>
-     <div class='bg-blue-200 p-1 grid'>
-       {
-         arr.map(item=> <div>
-          {item.name}
-         </div>)
-       }
-     </div>
-    </div>)
-  }
-  </div>
+  }}> step 2</button>
+
   
   </div>
 }

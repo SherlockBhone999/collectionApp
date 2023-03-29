@@ -1,9 +1,9 @@
-
+import ItemDetail from '../components/ItemDetail'
 
 
 export default function Itempage () {
   
   return <div>
-    item
+    <ItemDetail />
   </div>
 }

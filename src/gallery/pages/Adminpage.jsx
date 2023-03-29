@@ -2,6 +2,7 @@
 import {useState, createContext, useContext, useEffect } from 'react'
 import Form from '../components/Form'
 import AllItemlist from '../components/AllItemlist'
+import EditCategory from '../components/EditCategory'
 import { useNavigate } from 'react-router-dom'
 import {Context} from '../Gallery'
 
@@ -12,6 +13,8 @@ const Chosen = () => {
     return <Form />
   }else if(chosenComponent === 'allitem'){
     return <AllItemlist />
+  }else if(chosenComponent === 'editcategory'){
+    return <EditCategory />
   }
 }
 
@@ -29,17 +32,20 @@ const initialData = {
 
 const Content = () => {
   const navigate = useNavigate()
-  const {setChosenComponent} = useContext(AdminpageContext)
+  const {setChosenComponent, formInitialData} = useContext(AdminpageContext)
   
   return <div>
   <button onClick={()=>navigate('/')}> homepage </button>
   
   <div>
     <button onClick={()=>setChosenComponent('form')} class='m-3'>form </button>
-    <button onClick={()=>setChosenComponent('allitem')} class='m-3'>all itemlist </button>
+    <button onClick={()=>setChosenComponent('allitem')} class='m-3'>edit item </button>
+    <button onClick={()=>setChosenComponent('editcategory')} class='m-3'>edit category</button>
   </div>
   
   <Chosen />
+  
+  <button onClick={()=>console.log(formInitialData)}>show formInitialData</button>
   </div>
 }
 
