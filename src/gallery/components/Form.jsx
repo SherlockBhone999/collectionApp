@@ -90,18 +90,19 @@ const ForImgLinks = ({field, setField}) => {
 
 
 
-const saveUpdatedImg = async (e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg , baseUrl ) => {
+const saveUpdatedImg = async (e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg , baseUrl, setPreviousImgName, formInitialData ) => {
   if(chosenImage){
     setButtonN1('4')
     e.preventDefault()
     sendimg(e, chosenImage, setNameOfImageSavedInBackend, baseUrl)
+    setPreviousImgName(formInitialData.name)
   }else{
     e.preventDefault()
     setButtonN1('4')
   }
 }
 
-const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage) => {
+const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage ) => {
   if(chosenImage){
     e.preventDefault()
     setButtonN1('5')
@@ -111,7 +112,7 @@ const uploadUpdatedImg = async (e,setButtonN1, formdata, baseUrl,chosenImage) =>
     //e.preventDefault()
     setButtonN1('5')
     await axios.post(`${baseUrl}/update`, formdata)
-    console.log(formdata)
+  
   }
 }
 
@@ -124,10 +125,10 @@ const deletePreviousImg = async (formdata, baseUrl, chosenImage, setButtonN1, se
 
 
 const Button = ({chosenImage, setNameOfImageSavedInBackend, 
-setButtonN1, formdata, buttonN1, previewImg , baseUrl , setIsUpdateMode}) => {
+setButtonN1, formdata, buttonN1, previewImg , baseUrl , setIsUpdateMode, setPreviousImgName, formInitialData } ) => {
   if(buttonN1==='1'){
     return <div>
-      <button onClick={(e)=>saveImg(e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, baseUrl)} >submit 1 </button>
+      <button onClick={(e)=>saveImg(e, chosenImage, setNameOfImageSavedInBackend, setButtonN1, baseUrl )} >submit 1 </button>
     </div>
   }else if(buttonN1==='2'){
     return <div>
@@ -135,7 +136,7 @@ setButtonN1, formdata, buttonN1, previewImg , baseUrl , setIsUpdateMode}) => {
     </div>
   }else if(buttonN1==='3'){
     return <div>
-      <button onClick={(e)=>saveUpdatedImg(e,chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg, baseUrl)}> update 1</button>
+      <button onClick={(e)=>saveUpdatedImg(e,chosenImage, setNameOfImageSavedInBackend, setButtonN1, previewImg, baseUrl, setPreviousImgName, formInitialData )}> update 1</button>
     </div>
   }else if(buttonN1==='4'){
     return <div>
@@ -160,6 +161,9 @@ export default function Form (){
   const [nameOfImageSavedInBackend, setNameOfImageSavedInBackend] = useState('')
   const [buttonN1, setButtonN1 ] = useState('1')
   const {baseUrl} = useContext(Context)
+  
+  //for delete purpose
+  const [previousImgName, setPreviousImgName] = useState('')
   
   
   
@@ -228,6 +232,11 @@ export default function Form (){
     }
   },[previewImg])
   
+  useEffect(()=>{
+    const data = {...formdata, previousImgName : previousImgName }
+    setFormdata(data)
+  },[previousImgName])
+  
   return <div>
   <div class='flex w-full'>
   <form class='p-2 bg-gray-200 grid gap-2'>
@@ -249,6 +258,8 @@ export default function Form (){
   previewImg={previewImg}
   baseUrl={baseUrl}
   setIsUpdateMode={setIsUpdateMode}
+  setPreviousImgName={setPreviousImgName}
+  formInitialData={formInitialData}
   />
   
   </form>
@@ -260,7 +271,7 @@ export default function Form (){
   : null
   }
   
-  
+  {previousImgName}
   </div>
 
   </div>

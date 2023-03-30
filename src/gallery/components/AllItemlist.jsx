@@ -3,13 +3,15 @@ import {Context } from '../Gallery'
 import axios from 'axios'
 import {AdminpageContext} from '../pages/Adminpage'
 
-
+/*
 const fetchListFromGdrive = async (setList,baseUrl) =>{
   await axios.get(`${baseUrl}/allgdrivelist`)
   .then(res => {
     setList(res.data)
+    console.log(res.data)
   })
 }
+
 
 
 
@@ -30,7 +32,15 @@ const fetchItemFromDB = async (id, name,setItemList,baseUrl) => {
     })
   })
 } 
+*/
 
+const fetchList = async (setItemList, baseUrl) =>{
+  const data = {category : '' }
+  await axios.post(`${baseUrl}/fetchlistfromdb`,data )
+  .then(res => {
+    setItemList(res.data)
+  })
+}
 
 
 const deleteItem = (_id,profileImgLink,baseUrl) => {
@@ -49,7 +59,7 @@ const updateItem = (setChosenComponent, setFormInitialData, item, setPreviewImg,
 const fetchImg = async (item, setImg,baseUrl) => {
   const data = { name : item.name , id : item.profileImgLink }
   
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfrombackend`, data, {responseType : "arraybuffer"})
   .then( res => {
       const data = res.data
       
@@ -81,6 +91,7 @@ const OneItem = ({item}) => {
   const {baseUrl, categoryList } = useContext(Context)
   const {setChosenComponent, setFormInitialData, setPreviewImg, setIsUpdateMode, itemList, setItemList, showUpdateButton, setShowUpdateButton } = useContext(AdminpageContext)
   const [buttonStyle, setButtonStyle ] = useState('hidden')
+
   
   useEffect(()=>{
     if(item._id){ setStyle('bg-green-400') }
@@ -202,15 +213,9 @@ export default function AllItemlist(){
     if(categoryList.length === 0){
       fetchCategoryList(baseUrl, setCategoryList)
     }
-    fetchListFromGdrive(setItemList,baseUrl)
+    fetchList(setItemList, baseUrl)
   }}> step 1</button>
   
-  
-  <button onClick={()=>{
-    itemList.map((item)=>{
-      fetchItemFromDB(item.id, item.name, setItemList, baseUrl)
-    })
-  }}> step 2</button>
 
   
   </div>

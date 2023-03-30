@@ -16,7 +16,7 @@ const fetchItem = async (setItemForItempage, baseUrl, id, itemForItempage) =>{
 const fetchImg = async (itemForItempage, setItemForItempage,baseUrl) => {
   const data = { name : itemForItempage.name , id : itemForItempage.profileImgLink }
   
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfrombackend`, data, {responseType : "arraybuffer"})
   .then( (res) => {
       const data = res.data
       
@@ -38,7 +38,7 @@ const fetchImg = async (itemForItempage, setItemForItempage,baseUrl) => {
 const fetchImg2 = async (itemForItempage, setItemForItempage,baseUrl) => {
   const data = { name : itemForItempage.name , id : itemForItempage.profileImgLink }
   
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfrombackend`, data, {responseType : "arraybuffer"})
   .then( (res) => {
       const data = res.data
       
@@ -61,9 +61,11 @@ export default function ItemDetail(){
   const navigate = useNavigate()
   
   useEffect(()=>{
-    const nn = location.pathname
-    const nnn = nn.slice(1)
-    fetchItem(setItemForItempage, baseUrl, nnn, itemForItempage)
+    if(!itemForItempage.base64){
+      const nn = location.pathname
+      const nnn = nn.slice(1)
+      fetchItem(setItemForItempage, baseUrl, nnn, itemForItempage)
+    }
   },[])
   
   useEffect(()=>{

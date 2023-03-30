@@ -12,12 +12,10 @@ const fetchList = async (setListToFetch, baseUrl, chosenCategory) =>{
   })
 }
 
-
-
 const fetchItem = async (item, setList,baseUrl,list) => {
   const data = { name : item.name , id : item.profileImgLink }
   
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfrombackend`, data, {responseType : "arraybuffer"})
   .then( (res) => {
       const data = res.data
       
@@ -31,16 +29,15 @@ const fetchItem = async (item, setList,baseUrl,list) => {
       
     })
   .catch((err)=>{
-    console.log(err.response.status, item._id)
+    console.log(err.response.status, item._id + 'fetch fail')
     fetchItem2(item, setList, baseUrl, list)
   })
 }
 
-//if fetchitem fail, this will save it, i am so genius
 const fetchItem2 = async (item, setList,baseUrl,list) => {
   const data = { name : item.name , id : item.profileImgLink }
   
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
+  await axios.post(`${baseUrl}/fetchimgfrombackend`, data, {responseType : "arraybuffer"})
   .then( (res) => {
       const data = res.data
       
@@ -54,31 +51,8 @@ const fetchItem2 = async (item, setList,baseUrl,list) => {
       
     })
   .catch((err)=>{
-    console.log(err.response.status, item._id + 'fetch 2')
-    fetchItem3(item, setList, baseUrl, list)
+    console.log(err.response.status, item._id + 'second fetch fail')
   })
-}
-
-const fetchItem3 = async (item, setList,baseUrl,list) => {
-  const data = { name : item.name , id : item.profileImgLink }
-  
-  await axios.post(`${baseUrl}/fetchimgfromgdrive`, data, {responseType : "arraybuffer"})
-  .then( (res) => {
-      const data = res.data
-      
-      const base64 = btoa(
-        new Uint8Array(data).reduce(
-          (dataa,byte) => dataa + String.fromCharCode(byte), '')
-        )
-      
-      const itemm = {...item, base64 : base64}
-      setList(prevv => [...prevv, itemm ])
-      
-    })
-  .catch((err)=>{
-    console.log(err.response.status, item._id + 'fetch 3')
-  })
-    
 }
 
 
@@ -169,8 +143,6 @@ export default function Gallery(){
     }
     </div>
 
-  
-  <button onClick={()=>console.log(list)}>show list </button>
 
   </div>
 }
