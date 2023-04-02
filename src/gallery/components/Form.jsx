@@ -238,6 +238,16 @@ export default function Form (){
   },[previousImgName])
   
   return <div>
+  
+  {isUpdateMode?
+  <div class='w-40'>
+    <img src={`data:;base64,${previewImg}`} />
+  </div>
+  : null
+  }
+  
+  
+  
   <div class='flex w-full'>
   <form class='p-2 bg-gray-200 grid gap-2'>
   <input type='file' onChange={updateImgFile} />
@@ -264,14 +274,7 @@ export default function Form (){
   
   </form>
   
-  {isUpdateMode?
-  <div class='w-40'>
-    <img src={`data:;base64,${previewImg}`} />
-  </div>
-  : null
-  }
   
-  {previousImgName}
   </div>
 
   </div>

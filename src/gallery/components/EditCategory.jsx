@@ -37,10 +37,12 @@ const preUpdatePrepare = (category,setNewCategory, setIsUpdate) => {
 const OneCategory = ({item, setNewCategory, setIsUpdate}) => {
   const {baseUrl} = useContext(Context)
   
-  return <div>
-    {item.category}
-    <button onClick={()=>preUpdatePrepare(item.category,setNewCategory, setIsUpdate)}>update</button>
-    <button onClick={()=>deleteCategory(baseUrl, item._id)}>delete</button>
+  return <div class='flex'>
+    <div class='bg-gray-400 m-2 p-4 rounded-lg w-2/6 flex justify-center'>{item.category}</div>
+    <button onClick={()=>preUpdatePrepare(item.category,setNewCategory, setIsUpdate)}
+    class='m-2 p-2 bg-green-400'>update</button>
+    <button onClick={()=>deleteCategory(baseUrl, item._id)}
+    class='m-2 p-2 bg-red-400'>delete</button>
   </div>
 }
 
@@ -55,18 +57,21 @@ export default function EditCategory() {
   const [isUpdate, setIsUpdate] = useState(false)
   
   return <div>
-  <button onClick={()=>fetchCategoryList(baseUrl, setCategoryList)}>fetch</button>
+  <button onClick={()=>fetchCategoryList(baseUrl, setCategoryList)} class='m-2 p-2 bg-violet-400 '>fetch</button>
   <button onClick={()=>{
     setNewCategory('')
     setIsUpdate(false)
-  }}>new</button>
+  }} class='m-2 p-2 bg-yellow-400 '>new</button>
+  
+  <hr/>
+  
   <div>
-  <input type='text' onChange={(e)=>updateNewCategory(e,setNewCategory)} value={newCategory}/>
+  <input type='text' onChange={(e)=>updateNewCategory(e,setNewCategory)} value={newCategory} class='border-4 border-black p-2 m-2'/>
   
   {!isUpdate?
-  <button onClick={()=>createCategory(baseUrl,newCategory,setNewCategory)}> create </button>
+  <button onClick={()=>createCategory(baseUrl,newCategory,setNewCategory)} class='p-2 m-2 bg-pink-400 rounded'> create </button>
   :
-  <button onClick={()=>updateCategory(baseUrl, item._id, newCategory)}>update</button>
+  <button onClick={()=>updateCategory(baseUrl, item._id, newCategory)} class='p-2 m-2 bg-green-400 rounded'>update</button>
   }
   
   </div>

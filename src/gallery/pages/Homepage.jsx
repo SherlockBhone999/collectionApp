@@ -13,30 +13,30 @@ export default function Homepage () {
   const {isAdmin} = useContext(Context)
   const navigate = useNavigate()
 
-  return <div>
+  return <div class=''>
   {isAdmin !=='yes'?
-  <div class=''>
-    <button onClick={()=>{
-      setLoginBoxState('')
-    }}>login </button>
-  </div>
+  
+    <div class='flex justify-end m-2'>
+      <button onClick={()=>{
+        setLoginBoxState('')
+      }} class='bg-blue-400 p-2 m-1 rounded'>login </button>
+    </div>
+  
   :
   <div>
     <button onClick={()=>{
       navigate('/admin')
-    }}> admin page </button>
+    }} class='bg-black p-2 m-2 text-white rounded'> admin-page </button>
   </div>
   }
   
-  <div class={`w-screen h-screen fixed flex justify-center items-center bg-black bg-opacity-80 ${loginBoxState}`}>
-    <div class='mb-0'>
+  <Gallery />
+  
+  <div class={`w-screen h-screen fixed top-0 flex bg-black bg-opacity-80 ${loginBoxState}`}>
+    <div class='fixed top-20 left-10'>
       <Login setLoginBoxState={setLoginBoxState} />
     </div>
   </div>
-  
-  
-  
-  <Gallery />
   
   </div>
 }

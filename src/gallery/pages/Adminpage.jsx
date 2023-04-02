@@ -35,17 +35,16 @@ const Content = () => {
   const {setChosenComponent, formInitialData} = useContext(AdminpageContext)
   
   return <div>
-  <button onClick={()=>navigate('/')}> homepage </button>
+  <button onClick={()=>navigate('/')} class='m-3 bg-black text-white p-2 rounded'> homepage </button>
   
   <div>
-    <button onClick={()=>setChosenComponent('form')} class='m-3'>form </button>
-    <button onClick={()=>setChosenComponent('allitem')} class='m-3'>edit item </button>
-    <button onClick={()=>setChosenComponent('editcategory')} class='m-3'>edit category</button>
+    <button onClick={()=>setChosenComponent('form')} class='m-3 bg-blue-400 p-2 rounded'>upload </button>
+    <button onClick={()=>setChosenComponent('allitem')} class='m-3 bg-blue-400 p-2 rounded'>edit item </button>
+    <button onClick={()=>setChosenComponent('editcategory')} class='m-3 bg-blue-400 p-2 rounded '>edit category</button>
   </div>
-  
+  <hr/>
   <Chosen />
   
-  <button onClick={()=>console.log(formInitialData)}>show formInitialData</button>
   </div>
 }
 

@@ -3,40 +3,9 @@ import {Context } from '../Gallery'
 import axios from 'axios'
 import {AdminpageContext} from '../pages/Adminpage'
 
-/*
-const fetchListFromGdrive = async (setList,baseUrl) =>{
-  await axios.get(`${baseUrl}/allgdrivelist`)
-  .then(res => {
-    setList(res.data)
-    console.log(res.data)
-  })
-}
-
-
-
-
-const fetchItemFromDB = async (id, name,setItemList,baseUrl) => {
-  
-  axios.post(`${baseUrl}/fetchitemfromdbwithgdriveid`, { gdriveId : id } )
-  .then((res)=>{
-    const resItem = res.data
-    setItemList( prevv => {
-      const arr = [...prevv]
-      for(let i=0; i< arr.length; i++){
-        if(arr[i].id === id ){
-          const newItem = {...resItem, ...arr[i]}
-          arr[i] = newItem
-        }
-      }
-      return arr
-    })
-  })
-} 
-*/
 
 const fetchList = async (setItemList, baseUrl) =>{
-  const data = {category : '' }
-  await axios.post(`${baseUrl}/fetchlistfromdb`,data )
+  await axios.get(`${baseUrl}/fetchallitemdatafromdb` )
   .then(res => {
     setItemList(res.data)
   })
@@ -214,7 +183,7 @@ export default function AllItemlist(){
       fetchCategoryList(baseUrl, setCategoryList)
     }
     fetchList(setItemList, baseUrl)
-  }}> step 1</button>
+  }}> fetch Data</button>
   
 
   

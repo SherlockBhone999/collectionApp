@@ -44,17 +44,21 @@ export default function Login({setLoginBoxState}){
   const navigate = useNavigate()
   
   return <div class='text-white'>
+  
+  <ResponseBox isAdmin={isAdmin}/>
+  
   <div>
     <input type='text' onChange={(e)=>updateInput(e,setInput)} class='text-black' />
   
-    <button onClick={(e)=>submit(e,baseUrl,input, setLoginBoxState, setIsAdmin, navigate)} >submit </button>
+    <button onClick={(e)=>submit(e,baseUrl,input, setLoginBoxState, setIsAdmin, navigate)}
+    class='m-2 p-2 '>submit </button>
   </div>
   
   <div>
-    <button onClick={()=>setLoginBoxState('hidden')}>back</button>
+    <button onClick={()=>setLoginBoxState('hidden')} class='bg-blue-600 p-2 m-3 rounded fixed top-0 right-0'>back</button>
   </div>
   
   
-  <ResponseBox isAdmin={isAdmin}/>
+
   </div>
 }

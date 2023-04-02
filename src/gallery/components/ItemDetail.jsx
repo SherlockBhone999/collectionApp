@@ -60,6 +60,7 @@ export default function ItemDetail(){
   const location = useLocation()
   const navigate = useNavigate()
   
+  
   useEffect(()=>{
     if(!itemForItempage.base64){
       const nn = location.pathname
@@ -75,42 +76,44 @@ export default function ItemDetail(){
   },[itemForItempage._id])
   return <div>
   
-    <button onClick={()=>navigate('/')}>home</button>
+    <button onClick={()=>navigate('/')} class='p-2 m-2 bg-black text-white rounded'>back</button>
   
     <div class='flex justify-center'>
-      <div class='w-2/6'>
+      <div class='border-black rounded border-2 shadow w-60 h-80'>
         <img src={`data:;base64,${itemForItempage.base64} `} class='w-full h-full object-cover' />
       </div>
     </div>
     
-    <table class="table-auto">
-      <tbody>
-        <tr>
-          <td>Name</td>
-          <td>{itemForItempage.name}</td>
-        </tr>
-        <tr>
-          <td>Rating</td>
-          <td>{itemForItempage.rating}</td>
-        </tr>
-        <tr>
-          <td>Category</td>
-          <td>{itemForItempage.category}</td>
-        </tr>
-        <tr>
-          <td>My Comment</td>
-          <td>{itemForItempage.myComment}</td>
-        </tr>
-        <tr>
-          <td>Why I like it</td>
-          <td>{itemForItempage.reasonToLike}</td>
-        </tr>
-        <tr>
-          <td>Enjoyed year</td>
-          <td>{itemForItempage.enjoyedYear}</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class='flex justify-center m-3'>
+      <table class="table-auto">
+        <tbody>
+          <tr>
+            <td class='w-40 p-2'>Name</td>
+            <td>{itemForItempage.name}</td>
+          </tr>
+          <tr>
+            <td class='p-2'>Rating</td>
+            <td>{itemForItempage.rating}</td>
+          </tr>
+          <tr>
+            <td class='p-2'>Category</td>
+            <td>{itemForItempage.category}</td>
+          </tr>
+          <tr>
+            <td class='p-2'>My Comment</td>
+            <td>{itemForItempage.myComment}</td>
+          </tr>
+          <tr>
+            <td class='p-2'>Why I like it</td>
+            <td>{itemForItempage.reasonToLike}</td>
+          </tr>
+          <tr>
+            <td class='p-2'>Enjoyed year</td>
+            <td>{itemForItempage.enjoyedYear}</td>
+          </tr>
+        </tbody>
+      </table>
+     </div>
      
     {itemForItempage.youtubeLinks?
     <div class='flex justify-center'>
