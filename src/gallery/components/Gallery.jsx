@@ -59,8 +59,9 @@ const fetchItem2 = async (item, setList,baseUrl,list) => {
 const fetchCategoryList = async (baseUrl, setCategoryList) => {
   await axios.get(`${baseUrl}/getcategorylist`)
   .then((res)=>{
+    console.log('get categoryList', res.data)
     setCategoryList(res.data)
-  })
+  }) 
 }
 
 const fetchAllItemListForPageNumberCount = (baseUrl,setPageCount, chosenCategory) => {
@@ -147,7 +148,7 @@ export default function Gallery(){
   const [listToFetch, setListToFetch ] = useState([])
   const {baseUrl, chosenCategory, setChosenCategory , list, setList, categoryList, setCategoryList } = useContext(Context)
   const [categoryBoxStyle, setCategoryBoxStyle ] = useState('')
-  const [categoryBoxStyle2, setCategoryBoxStyle2 ] = useState('opacity-0 transition duration-500 hidden')
+  const [categoryBoxStyle2, setCategoryBoxStyle2 ] = useState('hidden')
   const [currentPageNumber, setCurrentPageNumber] = useState(1)
   
   useEffect(()=>{
@@ -185,7 +186,7 @@ export default function Gallery(){
           if(categoryBoxStyle2==='hidden'){
             setCategoryBoxStyle2('')
           }else{
-            setCategoryBoxStyle2(' hidden')
+            setCategoryBoxStyle2('hidden')
           }
         }} class='w-full p-2'>{chosenCategory}</button>
       </div>
@@ -202,7 +203,7 @@ export default function Gallery(){
           <button onClick={()=>{
             if(categoryBoxStyle === ''){
               setChosenCategory(item.category)
-              setCategoryBoxStyle2(' hidden')
+              setCategoryBoxStyle2('hidden')
             }else{
               setCategoryBoxStyle2('hidden')
             }
